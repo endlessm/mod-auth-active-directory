@@ -92,6 +92,13 @@ class AD_Webui(BaseModule):
             'ad' : "(| (samaccountname=%s)(mail=%s))",
             'openldap' : "(| (uid=%s)(mail=%s))"
             }[self.mode]
+
+        # Re-initialize the TLS context for openldap to make sure the
+        # random file opened by the TLS implementation is valid. When
+        # shinken-broker is daemonized, it may have closed the random
+        # file.
+        if self.mode == 'openldap' and hasattr(ldap, 'OPT_X_TLS_NEWCTX'):
+            ldap.set_option(ldap.OPT_X_TLS_NEWCTX, 0)
         
 
     # Try to connect if we got true parameter
